@@ -1,0 +1,85 @@
+---
+title: "Multiple Regression Analysis, mtcars"
+author: "Thomas Guenther"
+date: "Thursday, October 23, 2014"
+output: pdf_document
+---
+
+
+```{r}
+library(car)
+library(gvlma)
+library(QuantPsyc)
+library(leaps)
+library(MASS)
+
+data(mtcars)
+
+full.lm <- lm(mpg ~ am + cyl + disp + hp + drat + wt + qsec + vs + gear + carb, mtcars)
+summary(gvlma(full.lm))
+sqrt(car::vif(full.lm))
+
+# removing disp
+removed_disp <- lm(mpg ~ am + cyl + hp + drat + wt + qsec + vs + gear + carb, mtcars)
+summary(gvlma(removed_disp))
+sqrt(car::vif(removed_disp))
+
+# removing_cyl
+removed_cyl <- lm(mpg ~ am + hp + drat + wt + qsec + vs + gear + carb, mtcars)
+summary(gvlma(removed_cyl))
+sqrt(car::vif(removed_cyl))
+
+# removing_wt
+removed_wt <- lm(mpg ~ am + hp + drat + qsec + vs + gear + carb, mtcars)
+summary(gvlma(removed_wt))
+sqrt(car::vif(removed_wt))
+
+# removing_hp
+removed_hp <- lm(mpg ~ am + drat + qsec + vs + gear + carb, mtcars)
+summary(gvlma(removed_hp))
+sqrt(car::vif(removed_hp))
+
+# removing_hp
+removed_gear <- lm(mpg ~ am + drat + qsec + vs + carb, mtcars)
+summary(gvlma(removed_gear))
+sqrt(car::vif(removed_gear))
+
+#lm.beta(full.lm)
+#lm.beta(removed_disp)
+#lm.beta(removed_cyl)
+#lm.beta(removed_wt)
+#lm.beta(removed_hp)
+
+#leaps <- regsubsets(mpg ~ am + cyl + disp + hp + drat + wt + qsec + vs + gear + carb, data=mtcars, nbest=1)
+#leaps <- regsubsets(mpg ~ ., data=mtcars, nbest=2, force.in = "am", force.out = "disp")
+leaps <- regsubsets(mpg ~ ., data=mtcars, nbest=4, force.in = "am")
+plot(leaps, scale="adjr2")
+subsets(leaps, statistic="cp", legend = FALSE, main="Cp plot for all subsets regression")
+abline(a = 1, b = 1,lty=2,col="red")
+subsets(leaps, statistic="adjr2", legend = FALSE, main = "Adjusted R^2")
+
+final <- lm(mpg ~ am + disp + hp + wt + qsec, mtcars)
+
+#lm.beta(final)
+
+summary.out <- summary(leaps)
+max.adjr2 <- which.max(summary.out$adjr2)
+max.adjr2
+summary.out$which[max.adjr2,]
+which(summary.out$which[max.adjr2,] == TRUE)
+
+#anova(final, removed_hp, removed_wt, removed_cyl, removed_disp, full.lm)
+AIC(final, removed_hp, removed_wt, removed_cyl, removed_disp, full.lm)
+
+#aic.stuff <- stepAIC(full.lm, methods="backwards")
+
+#summary(aic.stuff)
+
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+plot(final)
+par(mfrow=c(1,1))
+
+#qqPlot(final, labels=row.names(mtcars), id.method="identify", simulate=TRUE, main="Q-Q Plot")
+qqPlot(final, labels=row.names(mtcars), simulate=FALSE, main="Q-Q Plot")
+crPlots(final)
+```
