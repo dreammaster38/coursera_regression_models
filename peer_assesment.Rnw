@@ -4,6 +4,7 @@
 \usepackage{amsmath}
 \usepackage{times}
 \usepackage{fixltx2e}
+\usepackage{float}
 
 %\setlength{\textwidth}{6.5in} 
 %\setlength{\textheight}{9in}
@@ -35,7 +36,7 @@ The goal of this report is to answer the following particulary questions:
   \item{Quantify the MPG differene between automatic and manual transmission}
 \end{itemize}
 Additionally to the questions above we will do some inference to examine our car data set.
-I will put this report to my github repository so anyone can see how it was build: \href{}{}
+I will put this report to my github repository so anyone can see how it was build: \href{https://github.com/dreammaster38/coursera_regression_models}{here}.
 
 \section{Automatic or manual transition? (Exploratory adventures)}
 First we will take a quick look at our data set \emph{mtcars}. We have \emph{11 variables with 32 observations} in our data set. For a description of the variables please see \href{http://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html}{in the R-manual}.
@@ -124,7 +125,7 @@ library(car)
 data(mtcars)
 @
 
-<<boxplot, fig.lp="fig:", echo=FALSE, eval=TRUE, fig.height=4, fig.width=6, fig.cap="Box plot of MPG vs. transmission type">>=
+<<boxplot, fig.lp="fig:", echo=FALSE, eval=TRUE, fig.height=4, fig.width=6, fig.cap="Box plot of MPG vs. transmission type", fig.pos="H">>=
 mtcars.with.factored.am <- mtcars
 mtcars.with.factored.am$am <- factor(mtcars$am, levels = c(0, 1), labels = c("Automatic", "Manual"))
 ggplot(mtcars.with.factored.am, aes(am, mpg, fill=am)) +
@@ -151,11 +152,6 @@ summary(mtcars.simple.lm)
 \caption{Summary of the simple linear regression model}\label{code:code2}
 \end{rcode}
 
-<<subsetplot, echo=FALSE, fig.lp="fig:", fig.height=6, fig.width=6, fig.cap="Subset regression plot">>=
-best4.subsets <- regsubsets(mpg ~ ., data=mtcars, nbest=4, force.in = "am", nvmax = NULL)
-plot(best4.subsets, scale="adjr2", main="Adj. R-squared plot for all subsets regression")
-@
-
 \begin{rcode}
 <<echo=FALSE, size="tiny">>=
 simple.fit <- lm(mpg ~ am, data = mtcars)
@@ -168,6 +164,13 @@ print(summary(subset.fit3))
 @
 \caption{AIC statistics and summary of our best multivariate regression model}\label{code:code3}
 \end{rcode}
+
+<<subsetplot, echo=FALSE, fig.lp="fig:", fig.height=6, fig.width=6, fig.cap="Subset regression plot", fig.pos="H">>=
+best4.subsets <- regsubsets(mpg ~ ., data=mtcars, nbest=4, force.in = "am", nvmax = NULL)
+plot(best4.subsets, scale="adjr2", main="Adj. R-squared plot for all subsets regression")
+par(mfrow=c(1,1))
+@
+
 
 <<diagnostic, fig.lp="fig:", echo=FALSE, fig.height=6, fig.width=6 ,fig.cap="Diagnostic plot of our final model">>=
 par(mfrow = c(2, 3), oma = c(0, 0, 2, 0))
